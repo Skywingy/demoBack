@@ -14,43 +14,56 @@ import cors from "cors";
 //ugugdliin san holboh
 
 //teacher route oruulah
-import { teacherRouter,studentRouter, lessonRouter, teacherVRouter, StudentClassRouter, StudentChosenRouter, postRouter} from "./routes";
+import {
+  teacherRouter,
+  studentRouter,
+  lessonRouter,
+  teacherVRouter,
+  StudentClassRouter,
+  StudentChosenRouter,
+  postRouter,
+} from "./routes";
 
 //ugugdliin sangiin medeelel oruulah
 
 const app = express();
 
 //pareser ashiglaj body-g avah
-app.use( parser.urlencoded({
-    extended: false,  })
+app.use(
+  parser.urlencoded({
+    extended: false,
+  })
 );
 const allowedOrigins = ["http://localhost:5121"];
 
 app.use(
-cors({
+  cors({
     origin: allowedOrigins,
     methods: ["POST", "GET", "PUT", "DELETE"],
     allowedHeaders: [
-        "Authorization",
-        "Content-Type",
-        "Accept-Ranges",
-        "Access-Control-Allow-Origin"],
+      "Authorization",
+      "Content-Type",
+      "Accept-Ranges",
+      "Access-Control-Allow-Origin",
+    ],
     credentials: true,
-})
+  })
 );
-app.use(parser.json({
-    limit: "5mb",})
+app.use(
+  parser.json({
+    limit: "5mb",
+  })
 );
 
 app.use(
-expressjwt({ secret: "io", algorithms: ["HS256"] }).unless({
+  expressjwt({ secret: "tadaa", algorithms: ["HS256"] }).unless({
     path: [
-{
-            url: "/student/login",
-            method: "POST",
-},
+      {
+        url: "/student/login",
+        method: "POST",
+      },
     ],
-})
+  })
 );
 
 //teacher route holboh
@@ -62,9 +75,7 @@ app.use("/StudentClass", StudentClassRouter);
 app.use("/StudentChosen", StudentChosenRouter);
 app.use("/post", postRouter);
 
-
-
 //serves-g 3030 port deer ajiluulah
 app.listen(3030, () => {
-console.log("server running 3030 PORT");
+  console.log("server running 3030 PORT");
 });
