@@ -1,0 +1,36 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "\"back-end\"",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon -x babel-node ./index.js",
+    "start": "pm2 start index.js"
+  },
+  "keywords": [
+    "back-end",
+    "nodejs",
+    "postgre"
+  ],
+  "author": "mD",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/cli": "^7.18.10",
+    "@babel/core": "^7.18.13",
+    "@babel/node": "^7.18.10",
+    "@babel/plugin-transform-runtime": "^7.18.10",
+    "@babel/preset-env": "^7.18.10",
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "express-jwt": "^7.7.5",
+    "jsonwebtoken": "^8.5.1",
+    "md5": "^2.3.0",
+    "pg": "^8.7.3",
+    "pm2": "^5.2.0",
+    "uniqid": "^5.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  }
+}

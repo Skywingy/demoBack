@@ -1,0 +1,223 @@
+const express = require('express')
+const parser = require("body-parser");
+const md5 = require("md5");
+const {expressjwt} = require("express-jwt"); 
+const jwt = require('jsonwebtoken');
+const cors = require('cors')
+/* Study well above */
+const { Client } = require("pg");
+const client = new Client({
+    host: "localhost",
+    port: 5432,
+    user: "nyam-erdene",
+    password: "L@lala75",
+    database: "postgres",
+}); //postgre gesen ug
+
+const dbconnect = async () => {
+await client.connect((error) => {
+    error
+        ? console.log( "ugugdliin san holbohod daraah aldaa garlaa: ",
+    error)
+    : console.log("ugugdliinn san amjilttai holbogdloo")
+});
+};
+dbconnect();
+
+
+
+
+const app = express();
+
+app.use(
+    parser.urlencoded({
+        extended: false,
+    })
+);
+
+app.use(
+    parser.json({
+        limit: "5mb",
+    })
+);
+
+app.use(cors({ origin: ["www.iotechnology.mn"], 
+                methods: ["POST", "GET", "PUT", "DELETE"],
+                allowedHeaders: ["Authorization"],
+                credetials: true }));
+                
+app.use(expressjwt({secret: "io", algorithms:["HS256"]})
+.unless({
+    path:[
+        {
+            url:'teacher/login',
+            method:'POST'
+        }
+    ],
+}));
+
+
+app.get('/test', function (req, res) {
+res.send('Hello World4')
+})
+
+app.post("/student/nemeh", (req, res) => {
+    return res.json({ result: true });
+})
+
+app.post("/student/nemeh", (req, res) => {
+    return res.json({ result: true });
+})
+
+app.post("/lesson/nemeh", (req, res) => {
+    return res.json({ result: true });
+})
+
+app.post("/teacher/nemeh", (req, res) => {
+    return res.json({ result: true });
+})
+
+app.get("/number/:too", (req, res)=> {
+    const { too } = req.params;
+    return res.json({hariult : too * 5});
+})
+
+app.post("/number/kvadratNiilber", (req, res)=> {
+
+    const { too1, too2 } = req.body;
+
+    return res.json({ hariult: too1*too2});
+    
+});
+
+app.get("/bagshiinjagsaalt", async (req, res) =>{
+
+    let result = await client.query("select * from teacher");
+    return res.json({tuluv: "amjilttai", 
+                    data: result.rows,
+                    niit: result.rowCount,
+    });
+});
+
+//CRUD Create Read Update Delete
+
+//1.get
+
+app.get("/bagshiinmedeelel/:id", async (req, res) =>{
+    let bagshiinId = req.params.id;
+    let query =  `select * from teacher
+    where teacherid = '${bagshiinId}'`
+    console.log("bagshiin qu", query);
+
+
+    let result = await client.query(query);
+    return res.json({tuluv: result.rows.length > 0 ? "amjilttai" : "medeelel oldsongui", 
+                    data: result.rows,
+    });
+});
+
+//2.Post
+
+app.post("/bagshnemeh", async(req, res) => {
+    console.log("request-body", req.body);
+
+    //request -n body-s utguudig avah
+    const { phone, teachername } = req.body;
+    
+    //query ee bichih
+    let query = `INSERT INTO teacher ("teachername", "phone")
+    VALUES('${teachername}', '${phone}')`
+    console.log("query", query);
+
+    //query g database d ajilluulah
+    let result = await client.query(query);
+
+    //hariu butsah
+    return res.json({
+        tuluv: result.rowCount > 0 ? "amjilltai" : "amjiltgui bolloo"
+    });
+});
+//3. Delete
+app.delete("/bagshustgah/:id", async(req, res) => {
+    console.log("request-body", req.body);
+    //req n params s utga avah
+    const teacherid = req.params.id;
+
+    //ustgah query bichih
+    const query = `DELETE from teacher where "teacherid" = '${teacherid}'`  
+
+    //query ajilluulah
+    const result = await client.query(query);
+
+    //hariu butsaah
+
+
+    return res.json({
+        tuluv: result.rowCount > 0 ? "amjilltai" : "amjiltgui bolloo"
+});
+});
+
+
+//4. Put
+
+app.put("/bagshuurchluh/:id", async(req, res) => {
+    console.log("request-body", req.body);
+    const { phone } = req.body;
+
+    const teacherid = req.params.id;
+
+    const query = `UPDATE teacher set "phone" = '${phone}' where teacherid = '${teacherid}'`
+    
+    const result = await client.query(query);
+    return res.json({
+        tuluv: result.rowCount > 0 ? "amjilltai" : "amjiltgui bolloo"
+});
+});
+
+//5. get
+
+app.get("/suragchiinmedeelel/:id", async (req, res) =>{
+    let suragchiinId = req.params.id;
+    let query =  `select * from student
+    where studentid = '${suragchiinId}'`
+    console.log("suragchiin qu", query);
+
+    
+
+
+    let result = await client.query(query);
+    return res.json({tuluv: result.rows.length > 0 ? "amjilttai" : "medeelel oldsongui", 
+                    data: result.rows,
+    });
+});
+
+
+//login
+app.post("/login", async (req, res) => {
+    const { firstname, password } = req.body;
+    const query = `select * from student where firstname = '${firstname}' and password = '${md5(password)}'`
+
+    console.log("md5", md5(password));
+    const result = await client.query(query);
+
+    if(result.rowCount>0){
+    const user = result.rows[0];
+    const token = jwt.sign(user, "io",{expiresIn: 3600});
+    return res.json({ success:true, user: user, token:token});   
+    }
+    else
+    {
+        return res.json({success:false,message:"hereglegchiin medeelel oldsongui"})
+    }
+});
+
+
+
+
+
+
+
+//ali port gedgee todorhoiloh
+app.listen(3000, () => {
+    console.log("server running 3000 port");
+});
